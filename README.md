@@ -7,6 +7,12 @@ WiFi fallback hotspot and setup console for OpenSprinkler Pi (OSPi).
 - On the hotspot, phones usually pop up the setup page by themselves (captive portal). If not, browse to `http://192.168.4.1:8090/`.
 - On the home network, `http://<pi>:8090/` opens the same console, and plain `http://<pi>/` redirects to OpenSprinkler on port 8080.
 
+| On the setup hotspot (phone) | On the home network |
+|---|---|
+| <img src="docs/screenshot-hotspot.png" width="300" alt="Setup page on a phone while the hotspot is on"> | <img src="docs/screenshot-home.png" width="440" alt="Setup page opened from the home network"> |
+
+Network names in these screenshots are examples.
+
 It's a single Python 3 script with no dependencies beyond the standard library. It drives NetworkManager through `nmcli`, so it needs Raspberry Pi OS **Bookworm or later**.
 
 ## Install
