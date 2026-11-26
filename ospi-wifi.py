@@ -31,9 +31,10 @@ import time
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-VERSION = "1.0"
+VERSION = "1.1"
 CONF_PATH = os.environ.get("OSPI_WIFI_CONF", "/etc/ospi-wifi.conf")
 STATE_DIR = os.environ.get("OSPI_WIFI_STATE", "/var/lib/ospi-wifi")
+SYSFS_NET = os.environ.get("OSPI_WIFI_SYSFS", "/sys/class/net")
 PORTAL_DNS_CONF = os.environ.get(
     "OSPI_WIFI_DNS_CONF", "/etc/NetworkManager/dnsmasq-shared.d/ospi-wifi-portal.conf")
 
@@ -207,7 +208,7 @@ def get_status():
 
 def default_hotspot_ssid():
     try:
-        with open(f"/sys/class/net/{IFACE}/address") as fh:
+        with open(f"{SYSFS_NET}/{IFACE}/address") as fh:
             mac = fh.read().strip().replace(":", "")
     except OSError:
         mac = ""
@@ -823,6 +824,24 @@ def serve(handler, port, name):
 
 # --------------------------------------------------------------------------
 
+def wait_for_adapter():
+    """USB WiFi adapters can appear well after boot (or not at all). Wait for it."""
+    path = os.path.join(SYSFS_NET, IFACE)
+    if os.path.exists(path):
+        return
+    log.warning("%s isn't present yet; waiting for the WiFi adapter to appear", IFACE)
+    start = time.monotonic()
+    next_note = start + 120
+    while not os.path.exists(path):
+        time.sleep(3)
+        if time.monotonic() >= next_note:
+            log.warning("Still no %s after %d s. Check the adapter with lsusb and dmesg "
+                        "(a Pi 1 may need a powered USB hub).", IFACE, time.monotonic() - start)
+            next_note += 600
+    log.info("%s appeared after %d s", IFACE, time.monotonic() - start)
+    time.sleep(3)  # let NetworkManager pick it up
+
+
 def main():
     global CFG, IFACE, HOTSPOT_CON, HOTSPOT_SSID, HOTSPOT_IP, HOTSPOT_NET
     logging.basicConfig(level=logging.INFO, stream=sys.stdout,
@@ -832,7 +851,7 @@ def main():
         log.setLevel(logging.DEBUG)
     IFACE = CFG["IFACE"]
     HOTSPOT_CON = CFG["HOTSPOT_CON"]
-    HOTSPOT_SSID = CFG["HOTSPOT_SSID"] or default_hotspot_ssid()
+    HOTSPOT_SSID = CFG["HOTSPOT_SSID"] or "OSPi-Setup"
     iface_addr = ipaddress.ip_interface(CFG["HOTSPOT_ADDRESS"])
     HOTSPOT_IP, HOTSPOT_NET = str(iface_addr.ip), iface_addr.network
     pw = CFG["HOTSPOT_PASSWORD"]
@@ -851,10 +870,13 @@ def main():
     os.makedirs(STATE_DIR, exist_ok=True)
     load_scan_cache()
     write_portal_dns()
-    ensure_hotspot_profile()
     serve(ConsoleHandler, cfg_int("CONSOLE_PORT"), "console")
     if cfg_int("PORTAL_PORT") > 0:
         serve(PortalHandler, cfg_int("PORTAL_PORT"), "portal")
+    wait_for_adapter()
+    # Name the hotspot only once the adapter exists, so the MAC suffix is right.
+    HOTSPOT_SSID = CFG["HOTSPOT_SSID"] or default_hotspot_ssid()
+    ensure_hotspot_profile()
     log.info("Watching %s; hotspot SSID %s", IFACE, HOTSPOT_SSID)
     monitor()
 

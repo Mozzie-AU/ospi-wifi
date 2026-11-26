@@ -76,6 +76,8 @@ nmcli connection show                 # saved profiles (the hotspot is OSPi-Hots
 sudo nmcli connection up OSPi-Hotspot # force the hotspot on by hand
 ```
 
+If the log says `wlan0 isn't present yet`, Linux can't see the WiFi adapter. Check `lsusb`, `ip link` and `dmesg`. On a Pi 1, a USB WiFi dongle can draw more power at boot than the port supplies; a powered USB hub fixes that. The setup console stays reachable over Ethernet while it waits, and the hotspot starts once the adapter appears.
+
 If the hotspot won't start, the log shows NetworkManager's error. Usually the adapter or driver doesn't support AP mode, or WiFi is blocked because no country is set (`rfkill list`).
 
 ## Uninstall
