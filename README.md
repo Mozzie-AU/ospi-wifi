@@ -55,7 +55,7 @@ The installer warns if it can't find AP mode.
 
 To keep the Pi on the hotspot permanently (for a site with no router), set `RETRY_INTERVAL=0`.
 
-OpenSprinkler keeps running throughout. With the hotspot on, it's reachable at `http://192.168.4.1:8080/`. It won't have internet access for weather or time sync, so the Pi's clock relies on the last NTP sync (there's no RTC).
+OpenSprinkler keeps running and watering throughout. The hotspot is only for getting the Pi back onto WiFi: OpenSprinkler's own web page loads its interface from the internet, so it may not open in a browser while the hotspot is on. Without internet there's also no weather data or time sync, and the Pi has no clock battery, so it relies on the last saved time.
 
 ## Notes and limits
 
