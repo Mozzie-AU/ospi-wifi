@@ -15,6 +15,14 @@ Network names in these screenshots are examples.
 
 It's a single Python 3 script with no dependencies beyond the standard library. It drives NetworkManager through `nmcli`, so it needs Raspberry Pi OS **Bookworm or later**.
 
+## Printable guide for non-technical users
+
+[`docs/ospi-wifi-setup-guide.pdf`](docs/ospi-wifi-setup-guide.pdf) is a two-page A4 picture guide to setting up the WiFi from a phone. Print it and keep it with the controller. Write the end of your hotspot name in the blank on page 1. It's in the log line `Hotspot OSPi-Setup-XXXX is on`, or set a fixed name with `HOTSPOT_SSID`.
+
+| Page 1: the steps | Page 2: the setup page |
+|---|---|
+| <img src="docs/guide-page1.png" width="340" alt="Page 1 of the setup guide: six picture steps"> | <img src="docs/guide-page2.png" width="340" alt="Page 2 of the setup guide: annotated phone screenshot"> |
+
 ## Install
 
 Copy the folder to the Pi, then:
