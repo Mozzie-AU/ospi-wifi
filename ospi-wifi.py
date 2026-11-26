@@ -31,7 +31,7 @@ import time
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-VERSION = "1.1"
+VERSION = "1.0"
 CONF_PATH = os.environ.get("OSPI_WIFI_CONF", "/etc/ospi-wifi.conf")
 STATE_DIR = os.environ.get("OSPI_WIFI_STATE", "/var/lib/ospi-wifi")
 SYSFS_NET = os.environ.get("OSPI_WIFI_SYSFS", "/sys/class/net")
